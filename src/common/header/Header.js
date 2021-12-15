@@ -105,7 +105,6 @@ class Header extends Component {
         axios.post(this.props.baseUrl + "auth/login", {}, {
             headers
         }).then(res => {
-            console.log(res);
             sessionStorage.setItem("uuid", res.data.id);
             sessionStorage.setItem("access-token", res.headers["access-token"]);
 
