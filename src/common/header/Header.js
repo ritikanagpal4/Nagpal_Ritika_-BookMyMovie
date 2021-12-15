@@ -12,6 +12,7 @@ import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const customStyles = {
     content: {
@@ -95,27 +96,28 @@ class Header extends Component {
         this.state.username === "" ? this.setState({ usernameRequired: "dispBlock" }) : this.setState({ usernameRequired: "dispNone" });
         this.state.loginPassword === "" ? this.setState({ loginPasswordRequired: "dispBlock" }) : this.setState({ loginPasswordRequired: "dispNone" });
 
-        let dataLogin = null;
-        let XHRRequest = new XMLHttpRequest();
-        let that = this;
-        XHRRequest.addEventListener("readystatechange", function () {
-            if (this.readyState === 4) {
-                sessionStorage.setItem("uuid", JSON.parse(this.responseText).id);
-                sessionStorage.setItem("access-token", XHRRequest.getResponseHeader("access-token"));
+        const headers = {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache",
+            "Authorization": "Basic " + window.btoa(this.state.username + ":" + this.state.loginPassword)
+        }
 
-                that.setState({
-                    loggedIn: true
-                });
+        axios.post(this.props.baseUrl + "auth/login", {}, {
+            headers
+        }).then(res => {
+            console.log(res);
+            sessionStorage.setItem("uuid", res.data.id);
+            sessionStorage.setItem("access-token", res.headers["access-token"]);
 
-                that.onModalClose();
-            }
+            this.setState({
+                loggedIn: true
+            });
+
+            this.onModalClose();
+        }).catch((error) => {
+            // handle error
+            console.log(error);
         });
-
-        XHRRequest.open("POST", this.props.baseUrl + "auth/login");
-        XHRRequest.setRequestHeader("Authorization", "Basic " + window.btoa(this.state.username + ":" + this.state.loginPassword));
-        XHRRequest.setRequestHeader("Content-Type", "application/json");
-        XHRRequest.setRequestHeader("Cache-Control", "no-cache");
-        XHRRequest.send(dataLogin);
     }
 
     onInputUsername = (e) => {
@@ -184,11 +186,24 @@ class Header extends Component {
     }
 
     onLogout = (e) => {
-        sessionStorage.removeItem("uuid");
-        sessionStorage.removeItem("access-token");
+        const headers = {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache",
+            "Authorization": "Bearer " + sessionStorage.getItem("access-token"),
+        }
 
-        this.setState({
-            loggedIn: false
+        axios.post(this.props.baseUrl + "auth/logout", {}, {
+            headers
+        }).then(res => {
+            sessionStorage.removeItem("uuid");
+            sessionStorage.removeItem("access-token");
+
+            this.setState({
+                loggedIn: false
+            });
+        }).catch((error) => {
+            // handle error
+            console.log(error);
         });
     }
 
