@@ -156,11 +156,7 @@ class Header extends Component {
                 that.setState({
                     registrationSuccess: true
                 });
-            } else {
-                this.setState({
-                    registrationSuccess: 'failed'
-                })
-            }
+            } 
         });
     }
 
@@ -329,16 +325,10 @@ class Header extends Component {
                                 </FormHelperText>
                             </FormControl>
                             <br /><br />
-                            {this.state.registrationSuccess === true ?
+                            {this.state.registrationSuccess === true &&
                                 <FormControl>
                                     <span className="successText">
                                         Registration Successful. Please Login!
-                                      </span>
-                                </FormControl>
-                                : this.state.registrationSuccess === 'failed' && 
-                                <FormControl>
-                                    <span>
-                                        Registration Failed. Please try again!
                                       </span>
                                 </FormControl>
                             }
